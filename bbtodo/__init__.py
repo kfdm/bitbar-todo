@@ -28,19 +28,19 @@ class Task(object):
         yield prefix
         yield "({priority}) {title}".format(**self.data)
 
-        if self.data.get('due'):
-            due = datetime.datetime.strptime(self.data['due'], '%Y-%m-%d')
+        if self.data.get("due"):
+            due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
             yield " [" + self.data["due"] + "]"
             if due < now:
-                yield '!!!'
+                yield "!!!"
 
-        if self.data['priority'] > 7:
+        if self.data["priority"] > 7:
             yield "| color=red"
-        elif self.data['priority'] > 4:
+        elif self.data["priority"] > 4:
             yield "| color=orange"
         yield "\n"
         if "external" in self.data:
-            yield '--'
+            yield "--"
             yield prefix
             yield "({priority}) {title}".format(**self.data)
             yield "|  alternate=true href={external}".format(**self.data)
@@ -67,17 +67,17 @@ def main():
         else:
             groups[todo["status"]].append(Task(todo))
 
-    for todo in sorted(groups[0], key=lambda t: t['priority'], reverse=True):
+    for todo in sorted(groups[0], key=lambda t: t["priority"], reverse=True):
         for line in todo.format():
             sys.stdout.write(line)
 
     print("Unscheduled")
-    for todo in sorted(groups[1], key=lambda t: t['priority'], reverse=True):
-        for line in todo.format('-- '):
+    for todo in sorted(groups[1], key=lambda t: t["priority"], reverse=True):
+        for line in todo.format("-- "):
             sys.stdout.write(line)
 
     print("Completed")
-    for todo in sorted(groups[2], key=lambda t: t['priority'], reverse=True):
-        for line in todo.format('-- '):
+    for todo in sorted(groups[2], key=lambda t: t["priority"], reverse=True):
+        for line in todo.format("-- "):
             sys.stdout.write(line)
 
