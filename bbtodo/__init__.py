@@ -57,7 +57,10 @@ def main():
     print("---")
     response = requests.get(
         config["todo"]["query"],
-        headers={"Authorization": "Token " + config["todo"]["token"]},
+        headers={
+            "Authorization": "Token " + config["todo"]["token"],
+            "User-Agent": "bitbar-todo",
+        },
     )
     response.raise_for_status()
 
