@@ -40,6 +40,7 @@ class Task(object):
             yield "| color=orange"
         yield "\n"
         if "external" in self.data:
+            yield '--'
             yield prefix
             yield "({priority}) {title}".format(**self.data)
             yield "|  alternate=true href={external}".format(**self.data)
