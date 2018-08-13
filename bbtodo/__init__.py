@@ -19,11 +19,18 @@ class Task(object):
     def __init__(self, data):
         self.data = data
 
+    def __getitem__(self, key):
+        return self.data[key]
+
     def format(self, prefix=""):
         yield prefix
         yield "({priority}) {title}".format(**self.data)
         if self.data.get("due"):
             yield " [" + self.data["due"] + "]"
+        if self.data['priority'] > 7:
+            yield "| color=red"
+        elif self.data['priority'] > 4:
+            yield "| color=orange"
         yield "\n"
         if "external" in self.data:
             yield prefix
@@ -52,17 +59,17 @@ def main():
         else:
             groups[todo["status"]].append(Task(todo))
 
-    for todo in groups[0]:
+    for todo in sorted(groups[0], key=lambda t: t['priority'], reverse=True):
         for line in todo.format():
             sys.stdout.write(line)
 
     print("Unscheduled")
-    for todo in groups[1]:
+    for todo in sorted(groups[1], key=lambda t: t['priority'], reverse=True):
         for line in todo.format('-- '):
             sys.stdout.write(line)
 
     print("Completed")
-    for todo in groups[2]:
+    for todo in sorted(groups[2], key=lambda t: t['priority'], reverse=True):
         for line in todo.format('-- '):
             sys.stdout.write(line)
 
