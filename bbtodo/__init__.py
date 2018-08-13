@@ -45,19 +45,24 @@ def main():
 
     groups = collections.defaultdict(list)
     for todo in response.json():
+        # Separate tasks with due dates from the other
+        # open tasks
         if todo.get("due") and todo["status"] == 1:
             groups[0].append(Task(todo))
         else:
             groups[todo["status"]].append(Task(todo))
 
     for todo in groups[0]:
-        sys.stdout.write("".join(todo.format()))
+        for line in todo.format():
+            sys.stdout.write(line)
 
     print("Unscheduled")
     for todo in groups[1]:
-        sys.stdout.write("-- ".join(todo.format()))
+        for line in todo.format('-- '):
+            sys.stdout.write(line)
 
     print("Completed")
     for todo in groups[2]:
-        sys.stdout.write("".join(todo.format("-- ")))
+        for line in todo.format('-- '):
+            sys.stdout.write(line)
 
