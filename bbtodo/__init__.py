@@ -28,6 +28,9 @@ class Task(object):
         yield prefix
         yield "({priority}) {title}".format(**self.data)
 
+        if "project" in self.data:
+            yield " #" + self.data["project"]["title"] + " "
+
         if self.data.get("due"):
             due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
             yield " [" + self.data["due"] + "]"
