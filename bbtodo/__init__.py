@@ -4,12 +4,14 @@ import requests
 import sys
 import collections
 import logging
+import datetime
 
 if "BitBar" not in os.environ:
     logging.basicConfig(level=logging.DEBUG)
 else:
     sys.stdout = open(sys.stdout.fileno(), mode="w", encoding="utf8")
 
+now = datetime.datetime.utcnow()
 config = configparser.ConfigParser()
 with open(os.path.expanduser("~/.bitbarrc")) as fp:
     config.read_file(fp)
@@ -25,8 +27,13 @@ class Task(object):
     def format(self, prefix=""):
         yield prefix
         yield "({priority}) {title}".format(**self.data)
-        if self.data.get("due"):
+
+        if self.data.get('due'):
+            due = datetime.datetime.strptime(self.data['due'], '%Y-%m-%d')
             yield " [" + self.data["due"] + "]"
+            if due < now:
+                yield '!!!'
+
         if self.data['priority'] > 7:
             yield "| color=red"
         elif self.data['priority'] > 4:
