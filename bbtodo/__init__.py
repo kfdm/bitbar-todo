@@ -21,31 +21,41 @@ class Task(object):
     def __init__(self, data):
         self.data = data
 
+        if self.data.get("due"):
+            due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
+            if due < now:
+                self.data["_late"] = "!!!"
+        if self.data["priority"] > 7:
+            self.data["_color"] = "red"
+        elif self.data["priority"] > 5:
+            self.data["_color"] = "orange"
+
     def __getitem__(self, key):
         return self.data[key]
 
     def format(self, prefix=""):
         yield prefix
-        yield "({priority}) {title}".format(**self.data)
+
+        yield "(%s) " % self.data["priority"]
 
         if "project" in self.data:
-            yield " #" + self.data["project"]["title"] + " "
+            yield "#%s " % self.data["project"]["title"]
+
+        yield self.data["title"]
 
         if self.data.get("due"):
-            due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
-            yield " [" + self.data["due"] + "]"
-            if due < now:
-                yield "!!!"
+            yield " [%s] " % self.data["due"]
 
-        if self.data["priority"] > 7:
-            yield "| color=red"
-        elif self.data["priority"] > 4:
-            yield "| color=orange"
+        yield "|"
+        if "_color" in self.data:
+            yield " color=" + self.data["_color"]
+
         yield "\n"
         if "external" in self.data:
             yield "--"
             yield prefix
-            yield "({priority}) {title}".format(**self.data)
+            yield self.data["external"]
+            # yield "({priority}) {title}".format(**self.data)
             yield "|  alternate=true href={external}".format(**self.data)
             yield "\n"
 
