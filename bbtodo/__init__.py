@@ -11,6 +11,14 @@ if "BitBar" not in os.environ:
 else:
     sys.stdout = open(sys.stdout.fileno(), mode="w", encoding="utf8")
 
+
+class ANSI:
+    red = '\033[1;31m'
+    green = '\033[1;32m'
+    blue = '\033[1;34m'
+    yellow = '\033[1;33m'
+    reset = '\033[0m'
+
 now = datetime.datetime.utcnow()
 config = configparser.ConfigParser()
 with open(os.path.expanduser("~/.bitbarrc")) as fp:
@@ -21,22 +29,19 @@ class Task(object):
     def __init__(self, data):
         self.data = data
 
-        if self.data.get("due"):
-            due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
-            if due < now:
-                self.data["_late"] = "!!!"
-        if self.data["priority"] > 7:
-            self.data["_color"] = "red"
-        elif self.data["priority"] > 5:
-            self.data["_color"] = "orange"
-
     def __getitem__(self, key):
         return self.data[key]
 
     def format(self, prefix=""):
         yield prefix
 
+        if self.data["priority"] > 7:
+            yield ANSI.red
+        elif self.data["priority"] > 5:
+            yield ANSI.yellow
+
         yield "(%s) " % self.data["priority"]
+        yield ANSI.reset
 
         if "project" in self.data:
             yield "#%s " % self.data["project"]["title"]
@@ -44,11 +49,15 @@ class Task(object):
         yield self.data["title"]
 
         if self.data.get("due"):
+            due = datetime.datetime.strptime(self.data["due"], "%Y-%m-%d")
+            if due < now:
+                yield ANSI.red
             yield " [%s] " % self.data["due"]
+            if due < now:
+                yield '!!!'
+            yield ANSI.reset
 
         yield "|"
-        if "_color" in self.data:
-            yield " color=" + self.data["_color"]
 
         yield "\n"
         if "external" in self.data:
